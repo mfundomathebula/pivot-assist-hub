@@ -144,10 +144,10 @@ function RootComponent() {
               <AppSidebar />
               <SidebarInset className="min-w-0 bg-background">
                 <TopBar />
-                <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8">
+                <div className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8">
                   {/* Required: nested routes render here. */}
                   <Outlet />
-                </main>
+                </div>
                 <footer className="border-t border-border px-4 py-5 sm:px-6">
                   <AiDisclaimer className="mx-auto max-w-4xl" />
                 </footer>
