@@ -33,7 +33,7 @@ export const generateEmail = createServerFn({ method: "POST" })
       system:
         "You are an expert business email writer. Return only the email: a 'Subject:' line, then a blank line, then the body. No commentary, no markdown fences. Keep it human, specific and free of filler.",
       prompt: [
-        actionPrompt[data.action] ?? actionPrompt.generate,
+        actionPrompt[data.action] ?? actionPrompt["generate"],
         `Purpose: ${data.purpose}`,
         data.recipient ? `Recipient: ${data.recipient}` : "",
         `Tone: ${data.tone}`,
