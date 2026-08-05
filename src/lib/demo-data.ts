@@ -29,12 +29,14 @@ export const recentActivity = [
   { id: "a5", type: "plan", title: "Milestone completed — “Research interviews”", time: "Yesterday" },
 ];
 
-export const todaysTasks = [
+export type Task = { id: string; title: string; done: boolean; priority: "high" | "medium" | "low" };
+
+export const todaysTasks: Task[] = [
   { id: "t1", title: "Review Q3 marketing brief", done: true, priority: "high" },
   { id: "t2", title: "Send follow-up to Northwind", done: false, priority: "high" },
   { id: "t3", title: "Draft onboarding checklist", done: false, priority: "medium" },
   { id: "t4", title: "Plan sprint retro agenda", done: false, priority: "low" },
-] as const;
+];
 
 export const suggestions = [
   {
