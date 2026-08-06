@@ -137,17 +137,17 @@ export function TopBar() {
               >
                 <Avatar className="size-8">
                   <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
-                    AM
+                    MM
                   </AvatarFallback>
                 </Avatar>
                 <span className="hidden text-left lg:block">
-                  <span className="block text-xs font-semibold leading-tight">Alex Meyer</span>
+                  <span className="block text-xs font-semibold leading-tight">Mfundo Mathebula</span>
                   <span className="block text-xs leading-tight text-muted-foreground">Pro plan</span>
                 </span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuLabel>Alex Meyer</DropdownMenuLabel>
+              <DropdownMenuLabel>Mfundo Mathebula</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/settings">Settings</Link>

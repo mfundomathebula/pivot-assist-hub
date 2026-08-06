@@ -61,7 +61,7 @@ function Dashboard() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:gap-8">
       <PageHeader
-        eyebrow="Good afternoon, Alex"
+        eyebrow="Good afternoon, Mfundo"
         title="Your productivity at a glance"
         description="Lumen has been busy. Here's what moved today and what deserves your attention next."
         actions={
