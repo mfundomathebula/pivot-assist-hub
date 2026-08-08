@@ -11,9 +11,9 @@
  */
 
 @theme inline {
-  --font-sans:
-    "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Jost", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -223,10 +223,14 @@
 
   h1,
   h2,
-  h3,
-  h4 {
-    letter-spacing: -0.028em;
-    font-weight: 600;
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    font-weight: 400;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   ::selection {
@@ -238,4 +242,25 @@
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
   }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+}
+
+@utility eyebrow {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--color-primary);
+}
+
+@utility photo-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-3xl);
+  background-image:
+    radial-gradient(120% 90% at 20% 10%, var(--color-primary-soft), transparent 60%),
+    linear-gradient(160deg, oklch(0.97 0.004 285), oklch(0.9 0.008 285));
+  border: 1px solid var(--color-border);
 }

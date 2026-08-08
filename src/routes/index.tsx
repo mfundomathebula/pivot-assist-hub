@@ -1,358 +1,400 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  CalendarClock,
-  CheckCircle2,
-  Circle,
-  Lightbulb,
-  ListChecks,
-  Mail,
-  MessageSquare,
-  TrendingUp,
-} from "lucide-react";
-import { useState } from "react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip as ReTooltip, XAxis } from "recharts";
+import { Clock, MapPin, Phone, Sparkles } from "lucide-react";
 
-import { PageHeader } from "@/components/shared/page-header";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  deadlines,
-  insights,
-  recentActivity,
-  recentEmails,
-  stats,
-  suggestions,
-  todaysTasks,
-  usageSeries,
-} from "@/lib/demo-data";
-import { cn } from "@/lib/utils";
+import { Reveal } from "@/components/site/reveal";
+import { SiteFooter } from "@/components/site/site-footer";
+import { SiteHeader } from "@/components/site/site-header";
+import { services } from "@/lib/booking-schema";
+import { site } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Dashboard — Lumen AI Productivity Assistant" },
+      { title: "Makeup Artist in Vosloorus | PearliiBeauty — Soft & Full Glam" },
       {
         name: "description",
         content:
-          "Track emails generated, tasks planned, AI conversations and your productivity score in one calm dashboard.",
+          "Professional makeup artist in Vosloorus, Gauteng. Soft glam from R400 and full glam from R500 — makeup designed around your vision. Book online, open daily 09:00–16:00.",
       },
-      { property: "og:title", content: "Dashboard — Lumen AI Productivity Assistant" },
+      {
+        name: "keywords",
+        content:
+          "makeup artist Vosloorus, makeup artist in Vosloorus, makeup services Vosloorus, soft glam Vosloorus, full glam Vosloorus, makeup artist Gauteng, makeup artist near me",
+      },
+      { property: "og:title", content: "PearliiBeauty — Makeup Artist in Vosloorus, Gauteng" },
       {
         property: "og:description",
-        content: "Your AI productivity command centre: stats, activity, quick actions and suggestions.",
+        content:
+          "Your vision. Your glam. Your confidence. Soft and full glam makeup in Vosloorus — book your appointment online.",
+      },
+      { name: "twitter:title", content: "PearliiBeauty — Makeup Artist in Vosloorus" },
+      {
+        name: "twitter:description",
+        content: "Soft glam R400 · Full glam R500 · Vosloorus, Gauteng · Open daily 09:00–16:00.",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BeautySalon",
+          name: "PearliiBeauty",
+          description:
+            "Professional makeup artist in Vosloorus, Gauteng offering soft glam and full glam makeup services.",
+          telephone: "+27652305824",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Vosloorus",
+            addressRegion: "Gauteng",
+            addressCountry: "ZA",
+          },
+          openingHoursSpecification: [
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+              ],
+              opens: "09:00",
+              closes: "16:00",
+            },
+          ],
+          priceRange: "R400 – R500",
+          makesOffer: services.map((s) => ({
+            "@type": "Offer",
+            name: s.name,
+            price: s.price,
+            priceCurrency: "ZAR",
+            description: s.description,
+          })),
+        }),
       },
     ],
   }),
-  component: Dashboard,
+  component: Home,
 });
 
-const statIcons = [Mail, ListChecks, MessageSquare, TrendingUp];
+const principles = [
+  { n: "01", title: "Listen", body: "I take the time to understand exactly what you want." },
+  { n: "02", title: "Create", body: "Your ideas become the starting point for your look." },
+  {
+    n: "03",
+    title: "Personalise",
+    body: "No two clients are the same, so your makeup shouldn't be either.",
+  },
+  {
+    n: "04",
+    title: "Confidence",
+    body: "You should leave my chair feeling beautiful, confident and completely yourself.",
+  },
+];
 
-const activityIcon = { email: Mail, plan: ListChecks, chat: MessageSquare } as const;
-
-function Dashboard() {
-  const [tasks, setTasks] = useState(() => todaysTasks.map((t) => ({ ...t })));
-  const completed = tasks.filter((t) => t.done).length;
-
+function Home() {
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:gap-8">
-      <PageHeader
-        eyebrow="Good afternoon, Mfundo"
-        title="Your productivity at a glance"
-        description="Lumen has been busy. Here's what moved today and what deserves your attention next."
-        actions={
-          <>
-            <Button asChild variant="outline" className="rounded-xl">
-              <Link to="/planner">Plan my day</Link>
-            </Button>
-            <Button asChild className="rounded-xl">
-              <Link to="/email">
-                New email <ArrowRight className="ml-1 size-4" />
-              </Link>
-            </Button>
-          </>
-        }
-      />
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
 
-      <section aria-label="Usage statistics" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat, i) => {
-          const Icon = statIcons[i] ?? Mail;
-          return (
-            <article
-              key={stat.label}
-              className="panel animate-fade-up p-5 transition-shadow hover:shadow-lift"
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-                <p className="min-w-0 truncate text-sm text-muted-foreground">{stat.label}</p>
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary-soft-foreground">
-                  <Icon className="size-4" />
-                </span>
-              </div>
-              <p className="mt-3 text-3xl font-semibold tracking-tight">{stat.value}</p>
-              <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-0.5 font-medium text-success">
-                  <ArrowUpRight className="size-3.5" />
-                  {stat.delta}
-                </span>
-                {stat.hint}
+      <main>
+        {/* HERO */}
+        <section className="relative overflow-hidden bg-foreground text-background">
+          <div className="pointer-events-none absolute -top-32 -right-24 size-[28rem] rounded-full bg-primary/25 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-0 -left-32 size-[22rem] rounded-full bg-primary/10 blur-3xl" />
+          <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+            <div>
+              <p className="eyebrow">Professional Makeup Artist · Vosloorus</p>
+              <h1 className="mt-5 font-display text-[2.6rem] leading-[1.05] sm:text-6xl lg:text-[4.2rem]">
+                Your Vision.
+                <br />
+                Your <span className="italic text-primary">Glam</span>.
+                <br />
+                Your Confidence.
+              </h1>
+              <p className="mt-6 max-w-lg text-base leading-relaxed text-background/70 sm:text-lg">
+                Makeup designed around you — from soft, effortless glam to bold, colourful and
+                creative looks.
               </p>
-            </article>
-          );
-        })}
-      </section>
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <section className="panel xl:col-span-2 p-5 sm:p-6">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-            <div className="min-w-0">
-              <h2 className="truncate text-base font-semibold">Usage statistics</h2>
-              <p className="text-sm text-muted-foreground">Last 7 days across all AI tools</p>
-            </div>
-            <Badge variant="secondary" className="shrink-0 rounded-full">
-              This week
-            </Badge>
-          </div>
-          <div className="mt-5 h-56 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={usageSeries} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-                <defs>
-                  <linearGradient id="fillTasks" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-chart-1)" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="var(--color-chart-1)" stopOpacity={0.02} />
-                  </linearGradient>
-                  <linearGradient id="fillEmails" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-chart-3)" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="var(--color-chart-3)" stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="day"
-                  stroke="var(--color-muted-foreground)"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <ReTooltip
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "1px solid var(--color-border)",
-                    background: "var(--color-popover)",
-                    color: "var(--color-popover-foreground)",
-                    fontSize: 12,
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="tasks"
-                  stroke="var(--color-chart-1)"
-                  strokeWidth={2}
-                  fill="url(#fillTasks)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="emails"
-                  stroke="var(--color-chart-3)"
-                  strokeWidth={2}
-                  fill="url(#fillEmails)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <dl className="mt-4 grid gap-4 sm:grid-cols-3">
-            {insights.map((item) => (
-              <div key={item.label} className="surface-soft p-4">
-                <dt className="truncate text-xs text-muted-foreground">{item.label}</dt>
-                <dd className="mt-1 flex items-baseline gap-2">
-                  <span className="text-xl font-semibold">{item.value}</span>
-                  <span className="text-xs font-medium text-success">{item.change}</span>
-                </dd>
+              <dl className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-sm text-background/70">
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 text-primary" />
+                  <dd>{site.location}</dd>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="size-4 text-primary" />
+                  <dd>Monday – Sunday | 09:00 – 16:00</dd>
+                </div>
+              </dl>
+
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/book"
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-[13px] font-medium uppercase tracking-[0.16em] text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-pink"
+                >
+                  Book Your Glam
+                </Link>
+                <a
+                  href="#services"
+                  className="inline-flex items-center justify-center rounded-full border border-white/25 px-8 py-4 text-[13px] font-medium uppercase tracking-[0.16em] text-background transition-colors hover:bg-white/10"
+                >
+                  Explore Services
+                </a>
               </div>
-            ))}
-          </dl>
-        </section>
+            </div>
 
-        <section className="panel p-5 sm:p-6">
-          <h2 className="text-base font-semibold">Quick actions</h2>
-          <p className="text-sm text-muted-foreground">Jump straight into a tool</p>
-          <div className="mt-4 grid gap-2">
-            {[
-              { to: "/email" as const, icon: Mail, label: "Generate an email", hint: "5 tones" },
-              { to: "/planner" as const, icon: ListChecks, label: "Plan a goal", hint: "AI timeline" },
-              { to: "/assistant" as const, icon: MessageSquare, label: "Ask Lumen", hint: "Chat" },
-            ].map((action) => (
-              <Link
-                key={action.to}
-                to={action.to}
-                className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border p-3 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft"
-              >
-                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary-soft-foreground">
-                  <action.icon className="size-4" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium">{action.label}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{action.hint}</span>
-                </span>
-                <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            ))}
+            {/* Replace this frame with your own photograph when you're ready. */}
+            <div className="photo-frame aspect-[4/5] w-full max-w-md justify-self-center lg:justify-self-end">
+              <div className="absolute inset-0 grid place-items-center p-8 text-center">
+                <div>
+                  <Sparkles className="mx-auto size-6 text-primary" />
+                  <p className="mt-4 font-display text-3xl text-foreground">
+                    Pearlii<span className="italic text-primary">Beauty</span>
+                  </p>
+                  <p className="mt-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                    Soft glam · Full glam
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-6">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-              <h3 className="truncate text-sm font-semibold">Today's tasks</h3>
-              <span className="shrink-0 text-xs text-muted-foreground">
-                {completed}/{tasks.length} done
-              </span>
-            </div>
-            <Progress value={(completed / tasks.length) * 100} className="mt-2 h-1.5" />
-            <ul className="mt-3 space-y-1">
-              {tasks.map((task) => (
-                <li key={task.id}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setTasks((prev) =>
-                        prev.map((t) => (t.id === task.id ? { ...t, done: !t.done } : t)),
-                      )
-                    }
-                    aria-pressed={task.done}
-                    className="flex w-full items-start gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-accent/60"
-                  >
-                    {task.done ? (
-                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" />
-                    ) : (
-                      <Circle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    )}
-                    <span
-                      className={cn(
-                        "min-w-0 flex-1 text-sm",
-                        task.done && "text-muted-foreground line-through",
-                      )}
-                    >
-                      {task.title}
-                    </span>
-                    <PriorityBadge priority={task.priority} />
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <div className="relative border-t border-white/10">
+            <p className="mx-auto max-w-4xl px-5 py-8 text-center font-display text-xl italic leading-snug text-background/85 sm:px-8 sm:text-2xl">
+              “You should leave my chair feeling like the most confident version of yourself.”
+            </p>
           </div>
         </section>
-      </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <section className="panel xl:col-span-2 overflow-hidden">
-          <Tabs defaultValue="activity">
-            <div className="border-b border-border px-5 pt-4">
-              <TabsList className="rounded-xl">
-                <TabsTrigger value="activity" className="rounded-lg">
-                  Recent activity
-                </TabsTrigger>
-                <TabsTrigger value="emails" className="rounded-lg">
-                  Recent emails
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            <TabsContent value="activity" className="m-0 p-2 sm:p-3">
-              <ul className="divide-y divide-border">
-                {recentActivity.map((item) => {
-                  const Icon = activityIcon[item.type as keyof typeof activityIcon] ?? Mail;
-                  return (
-                    <li
-                      key={item.id}
-                      className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-2 py-3"
-                    >
-                      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-                        <Icon className="size-4" />
+        {/* BRAND / INTRO */}
+        <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+          <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+            <Reveal>
+              <p className="eyebrow">The philosophy</p>
+              <h2 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
+                Makeup That
+                <br />
+                Starts With <span className="italic text-primary">You.</span>
+              </h2>
+              <div className="mt-8 photo-frame aspect-[5/4] w-full">
+                <div className="absolute inset-0 grid place-items-center">
+                  <p className="font-display text-2xl italic text-foreground/70">
+                    Your vision, first.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={120} className="space-y-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
+              <p>
+                Your face is not a canvas for someone else's idea of beauty. Your makeup should
+                reflect you, your personality and the look you've imagined.
+              </p>
+              <p>
+                I want every client to feel heard, understood and comfortable enough to express
+                exactly what they want. Whether you're looking for soft, elegant beauty or something
+                bold, colourful and creative, my goal is to bring your vision to life.
+              </p>
+              <p className="text-foreground">
+                Because when you leave my chair, I want you to feel like a more confident and
+                beautiful version of yourself.
+              </p>
+              <div className="border-l-2 border-primary pl-5">
+                <p className="font-display text-2xl italic leading-snug text-foreground">
+                  “My goal is for every client to feel heard and to have their vision executed
+                  exactly the way they want it.”
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* SERVICES */}
+        <section id="services" className="scroll-mt-24 bg-surface py-20 sm:py-28">
+          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+            <Reveal className="text-center">
+              <p className="eyebrow">Services</p>
+              <h2 className="mt-4 font-display text-4xl sm:text-5xl">Choose Your Glam</h2>
+              <p className="mx-auto mt-4 max-w-md text-muted-foreground">
+                Whatever your vision, let's bring it to life.
+              </p>
+            </Reveal>
+
+            <div className="mt-14 grid gap-6 md:grid-cols-2 md:gap-8">
+              {services.map((service, i) => (
+                <Reveal key={service.id} delay={i * 120}>
+                  <article className="group flex h-full flex-col rounded-3xl border border-border bg-card p-7 shadow-soft transition-all hover:-translate-y-1 hover:shadow-lift sm:p-9">
+                    <div className="flex items-start justify-between gap-4">
+                      <h3 className="font-display text-3xl">{service.name}</h3>
+                      <span className="rounded-full bg-primary-soft px-4 py-1.5 font-display text-xl text-primary-soft-foreground">
+                        R{service.price}
                       </span>
-                      <p className="min-w-0 truncate text-sm">{item.title}</p>
-                      <span className="shrink-0 text-xs text-muted-foreground">{item.time}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </TabsContent>
-            <TabsContent value="emails" className="m-0 p-2 sm:p-3">
-              <ul className="divide-y divide-border">
-                {recentEmails.map((mail) => (
-                  <li key={mail.id} className="px-2 py-3">
-                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                      <p className="min-w-0 truncate text-sm font-medium">{mail.subject}</p>
-                      <span className="shrink-0 text-xs text-muted-foreground">{mail.time}</span>
                     </div>
-                    <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <span className="truncate">To {mail.to}</span>
-                      <Badge variant="outline" className="rounded-full text-[11px]">
-                        {mail.tone}
-                      </Badge>
+                    <p className="mt-5 leading-relaxed text-muted-foreground">
+                      {service.description}
                     </p>
-                  </li>
-                ))}
-              </ul>
-            </TabsContent>
-          </Tabs>
+                    <p className="mt-5 rounded-2xl bg-surface p-4 text-sm text-foreground">
+                      {service.perfectFor}
+                    </p>
+                    <ul className="mt-6 flex flex-wrap gap-2">
+                      {service.tags.map((tag) => (
+                        <li
+                          key={tag}
+                          className="rounded-full border border-border px-3.5 py-1.5 text-[12px] uppercase tracking-[0.12em] text-muted-foreground"
+                        >
+                          {tag}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      to="/book"
+                      search={{ service: service.id }}
+                      className="mt-8 inline-flex items-center justify-center rounded-full bg-foreground px-7 py-3.5 text-[13px] font-medium uppercase tracking-[0.16em] text-background transition-all group-hover:bg-primary group-hover:text-primary-foreground"
+                    >
+                      Book {service.name}
+                    </Link>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
         </section>
 
-        <section className="panel p-5 sm:p-6">
-          <h2 className="flex items-center gap-2 text-base font-semibold">
-            <Lightbulb className="size-4 text-primary" />
-            AI suggestions
-          </h2>
-          <div className="mt-4 space-y-3">
-            {suggestions.map((s) => (
-              <article key={s.id} className="surface-soft p-4">
-                <h3 className="text-sm font-medium">{s.title}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.body}</p>
-                <Button asChild variant="ghost" size="sm" className="mt-2 -ml-2 rounded-lg text-primary">
-                  <Link to={s.to}>
-                    {s.cta} <ArrowRight className="ml-1 size-3.5" />
-                  </Link>
-                </Button>
-              </article>
+        {/* YOUR VISION MATTERS */}
+        <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+          <Reveal>
+            <p className="eyebrow">The approach</p>
+            <h2 className="mt-4 max-w-md font-display text-4xl leading-tight sm:text-5xl">
+              Your Vision <span className="italic text-primary">Matters.</span>
+            </h2>
+          </Reveal>
+          <div className="mt-14 grid gap-px overflow-hidden rounded-3xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+            {principles.map((p, i) => (
+              <Reveal key={p.n} delay={i * 100}>
+                <div className="h-full bg-card p-7 transition-colors hover:bg-primary-soft/40">
+                  <p className="font-display text-4xl text-primary/60">{p.n}</p>
+                  <h3 className="mt-4 text-sm uppercase tracking-[0.2em]">{p.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </section>
-      </div>
 
-      <section className="panel p-5 sm:p-6">
-        <h2 className="flex items-center gap-2 text-base font-semibold">
-          <CalendarClock className="size-4 text-primary" />
-          Upcoming deadlines
-        </h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          {deadlines.map((item) => (
-            <article key={item.id} className="rounded-xl border border-border p-4">
-              <p className="truncate text-sm font-medium">{item.title}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">{item.due}</p>
-              <Progress value={item.progress} className="mt-3 h-1.5" />
-              <p className="mt-2 text-xs text-muted-foreground">{item.progress}% complete</p>
-            </article>
-          ))}
-        </div>
-      </section>
+        {/* ABOUT */}
+        <section id="about" className="scroll-mt-24 bg-foreground py-20 text-background sm:py-28">
+          <div className="mx-auto grid max-w-6xl gap-12 px-5 sm:px-8 lg:grid-cols-2 lg:gap-16">
+            <Reveal>
+              <div className="photo-frame aspect-[4/5] w-full max-w-sm">
+                <div className="absolute inset-0 grid place-items-center">
+                  <p className="font-display text-2xl italic text-foreground/70">The artist</p>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={120}>
+              <p className="eyebrow">About</p>
+              <h2 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
+                Behind the <span className="italic text-primary">Glam</span>
+              </h2>
+              <div className="mt-7 space-y-5 leading-relaxed text-background/70">
+                <p>
+                  Makeup has always been my way of creating — a way of turning how someone feels
+                  about themselves into something they can see in the mirror. What I love most isn't
+                  a single signature look; it's the moment a client recognises herself in it.
+                </p>
+                <p>
+                  So I ask questions. I listen. If you arrive knowing exactly what you want, we'll
+                  build it together. If you're unsure, we'll figure it out together — colours,
+                  textures, how bold or how soft, what feels like you.
+                </p>
+                <p>
+                  Comfort matters just as much as artistry. My chair is a space where you can speak
+                  freely about your preferences, change your mind, and be completely honest about
+                  what you love.
+                </p>
+                <p className="font-display text-2xl italic leading-snug text-background">
+                  “Everyone who leaves my chair should feel like a more confident and beautiful
+                  version of themselves.”
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* CLIENT EXPERIENCE */}
+        <section className="mx-auto max-w-4xl px-5 py-20 text-center sm:px-8 sm:py-28">
+          <Reveal>
+            <p className="eyebrow">The experience</p>
+            <h2 className="mt-4 font-display text-4xl sm:text-5xl">
+              More Than Just <span className="italic text-primary">Makeup.</span>
+            </h2>
+            <div className="mx-auto mt-8 max-w-2xl space-y-5 text-lg leading-relaxed text-muted-foreground">
+              <p>From the moment you sit in my chair, your vision matters.</p>
+              <p>
+                Whether you already know exactly what you want or need help figuring it out, I'll
+                take the time to understand you and the look you're going for.
+              </p>
+              <p className="text-foreground">
+                My goal isn't simply to apply makeup. It's to make sure you leave my chair feeling
+                heard, beautiful and confident.
+              </p>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* CONTACT */}
+        <section className="bg-surface py-20 sm:py-28">
+          <div className="mx-auto max-w-4xl px-5 text-center sm:px-8">
+            <Reveal>
+              <p className="eyebrow">Contact</p>
+              <h2 className="mt-4 font-display text-4xl sm:text-5xl">Ready to Get Glammed?</h2>
+              <dl className="mx-auto mt-10 grid max-w-2xl gap-4 sm:grid-cols-3">
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  <MapPin className="mx-auto size-5 text-primary" />
+                  <dt className="mt-3 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    Location
+                  </dt>
+                  <dd className="mt-1 text-sm">Vosloorus, Gauteng</dd>
+                </div>
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  <Phone className="mx-auto size-5 text-primary" />
+                  <dt className="mt-3 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    Call or WhatsApp
+                  </dt>
+                  <dd className="mt-1 text-sm">
+                    <a href={site.phoneHref} className="hover:text-primary">
+                      {site.phone}
+                    </a>
+                  </dd>
+                </div>
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  <Clock className="mx-auto size-5 text-primary" />
+                  <dt className="mt-3 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    Hours
+                  </dt>
+                  <dd className="mt-1 text-sm">
+                    Monday – Sunday
+                    <br />
+                    09:00 – 16:00
+                  </dd>
+                </div>
+              </dl>
+              <Link
+                to="/book"
+                className="mt-10 inline-flex items-center justify-center rounded-full bg-primary px-9 py-4 text-[13px] font-medium uppercase tracking-[0.16em] text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-pink"
+              >
+                Book Your Glam
+              </Link>
+            </Reveal>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
     </div>
-  );
-}
-
-function PriorityBadge({ priority }: { priority: string }) {
-  const styles: Record<string, string> = {
-    high: "bg-primary-soft text-primary-soft-foreground",
-    medium: "bg-muted text-muted-foreground",
-    low: "bg-muted text-muted-foreground",
-  };
-  return (
-    <span
-      className={cn(
-        "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium capitalize",
-        styles[priority] ?? styles["low"],
-      )}
-    >
-      {priority}
-    </span>
   );
 }

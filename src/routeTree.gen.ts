@@ -10,102 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as EmailRouteImport } from './routes/email'
-import { Route as PlannerRouteImport } from './routes/planner'
-import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as AssistantIndexRouteImport } from './routes/assistant.index'
-import { Route as AssistantThreadIdRouteImport } from './routes/assistant.$threadId'
+import { Route as BookRouteImport } from './routes/book'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EmailRoute = EmailRouteImport.update({
-  id: '/email',
-  path: '/email',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlannerRoute = PlannerRouteImport.update({
-  id: '/planner',
-  path: '/planner',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiChatRoute = ApiChatRouteImport.update({
-  id: '/api/chat',
-  path: '/api/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AssistantIndexRoute = AssistantIndexRouteImport.update({
-  id: '/assistant/',
-  path: '/assistant/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AssistantThreadIdRoute = AssistantThreadIdRouteImport.update({
-  id: '/assistant/$threadId',
-  path: '/assistant/$threadId',
+const BookRoute = BookRouteImport.update({
+  id: '/book',
+  path: '/book',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/email': typeof EmailRoute
-  '/planner': typeof PlannerRoute
-  '/api/chat': typeof ApiChatRoute
-  '/assistant/$threadId': typeof AssistantThreadIdRoute
-  '/assistant/': typeof AssistantIndexRoute
+  '/book': typeof BookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/email': typeof EmailRoute
-  '/planner': typeof PlannerRoute
-  '/api/chat': typeof ApiChatRoute
-  '/assistant/$threadId': typeof AssistantThreadIdRoute
-  '/assistant': typeof AssistantIndexRoute
+  '/book': typeof BookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/email': typeof EmailRoute
-  '/planner': typeof PlannerRoute
-  '/api/chat': typeof ApiChatRoute
-  '/assistant/$threadId': typeof AssistantThreadIdRoute
-  '/assistant/': typeof AssistantIndexRoute
+  '/book': typeof BookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/email'
-    | '/planner'
-    | '/api/chat'
-    | '/assistant/$threadId'
-    | '/assistant/'
+  fullPaths: '/' | '/book'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/email'
-    | '/planner'
-    | '/api/chat'
-    | '/assistant/$threadId'
-    | '/assistant'
-  id:
-    | '__root__'
-    | '/'
-    | '/email'
-    | '/planner'
-    | '/api/chat'
-    | '/assistant/$threadId'
-    | '/assistant/'
+  to: '/' | '/book'
+  id: '__root__' | '/' | '/book'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  EmailRoute: typeof EmailRoute
-  PlannerRoute: typeof PlannerRoute
-  ApiChatRoute: typeof ApiChatRoute
-  AssistantThreadIdRoute: typeof AssistantThreadIdRoute
-  AssistantIndexRoute: typeof AssistantIndexRoute
+  BookRoute: typeof BookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -117,39 +58,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/email': {
-      id: '/email'
-      path: '/email'
-      fullPath: '/email'
-      preLoaderRoute: typeof EmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/planner': {
-      id: '/planner'
-      path: '/planner'
-      fullPath: '/planner'
-      preLoaderRoute: typeof PlannerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/chat': {
-      id: '/api/chat'
-      path: '/api/chat'
-      fullPath: '/api/chat'
-      preLoaderRoute: typeof ApiChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/assistant/': {
-      id: '/assistant/'
-      path: '/assistant'
-      fullPath: '/assistant/'
-      preLoaderRoute: typeof AssistantIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/assistant/$threadId': {
-      id: '/assistant/$threadId'
-      path: '/assistant/$threadId'
-      fullPath: '/assistant/$threadId'
-      preLoaderRoute: typeof AssistantThreadIdRouteImport
+    '/book': {
+      id: '/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof BookRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -157,22 +70,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  EmailRoute: EmailRoute,
-  PlannerRoute: PlannerRoute,
-  ApiChatRoute: ApiChatRoute,
-  AssistantThreadIdRoute: AssistantThreadIdRoute,
-  AssistantIndexRoute: AssistantIndexRoute,
+  BookRoute: BookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
